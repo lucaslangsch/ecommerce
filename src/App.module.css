@@ -1,0 +1,48 @@
+.main {
+  align-items: center;
+  background-color: #f44336;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.test {
+  background-color: red;
+}
+
+.containerMain {
+  display: flex;
+  max-width: 700px;
+  width: 80%;
+}
+
+.card {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  min-height: 400px;
+  position: relative;
+  width: 100%;
+}
+
+.cardImg {
+  height: auto;
+  object-fit: cover;
+  width: 50%;
+}
+
+.form {
+  padding: 20px 40px;
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Mobile */
+@media (max-width: 700px) {}
+
+/* Tablet and Smaller Desktop */
+@media (min-width: 701px) and (max-width: 1120px) {}
