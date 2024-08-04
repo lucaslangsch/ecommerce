@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
 import UserContext from './AuthContext.tsx';
+import { loginUser, registerUser } from '../api/UserApi.ts';
 
 type UserProviderType = {
   children: React.ReactNode;
@@ -16,7 +17,7 @@ type jwtDecoded = {
 
 function getCookie(name: string): string | null {
   const matches = document.cookie.match(new RegExp(
-    `(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)`
+    `(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)` // eslint-disable-line
   ));
   return matches ? decodeURIComponent(matches[1]) : null;
 }
@@ -47,8 +48,30 @@ function UserProvider({ children }: UserProviderType) {
     setLoading(false);
   }, []);
 
+  const register = async (userData: { firstName: string; lastName: string; email: string; password: string }) => {
+    const data = await registerUser(userData);
+    document.cookie = `token=${data.token};path=/;`;
+    const decoded: jwtDecoded = jwtDecode(data.token);
+    setAuth({
+      name: decoded.name,
+      email: decoded.email,
+      authenticated: true,
+    });
+  };
+
+  const login = async (userData: { email: string; password: string }) => {
+    const data = await loginUser(userData);
+    document.cookie = `token=${data.token};path=/;`;
+    const decoded: jwtDecoded = jwtDecode(data.token);
+    setAuth({
+      name: decoded.name,
+      email: decoded.email,
+      authenticated: true,
+    });
+  };
+
   return (
-    <UserContext.Provider value={{ ...auth, setAuth, loading }}>
+    <UserContext.Provider value={{ ...auth, loading, register, login }}>
       {children}
     </UserContext.Provider>
   );

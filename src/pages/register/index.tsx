@@ -11,7 +11,7 @@ function Register() {
     email: '',
     password: ''
   });
-  const { setAuth } = useContext(AuthContext);
+  const { register } = useContext(AuthContext);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -23,28 +23,12 @@ function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:3001/user/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password
-        })
+      await register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to register');
-      }
-
-      const data = await response.json();
-      document.cookie = `token=${data.token};path=/;`;
-
-      setAuth({ name: `${formData.firstName} ${formData.lastName}`, email: formData.email, authenticated: true });
-
     } catch (error) {
       console.error(error);
     }
