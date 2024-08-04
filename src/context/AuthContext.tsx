@@ -3,7 +3,9 @@ import { createContext } from 'react';
 type UserContextType = {
   name: string;
   email: string;
-  setAuth: (auth: { name: string, email: string }) => void;
+  authenticated: boolean;
+  loading: boolean;
+  setAuth: (auth: { name: string, email: string, authenticated: boolean; }) => void;
 };
 
 const UserContext = createContext({} as UserContextType);
