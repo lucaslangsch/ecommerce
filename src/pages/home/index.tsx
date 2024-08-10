@@ -1,5 +1,5 @@
 import { Button, Card, TextField, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate  } from 'react-router-dom';
 import styles from './index.module.css';
 import { useContext, useState } from 'react';
 import AuthContext from '../../context/AuthContext';
@@ -11,14 +11,15 @@ function Home() {
     password: ''
   });
   const { login } = useContext(AuthContext);
-
+  const navigate = useNavigate();
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -26,6 +27,7 @@ function Home() {
         email: formData.email,
         password: formData.password
       });
+      navigate("/dashboard");
     } catch (error) {
       console.error(error);
     }

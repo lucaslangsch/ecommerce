@@ -6,11 +6,11 @@ import UserProvider from './context/AuthProvider.tsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <BrowserRouter>
       <UserProvider>
         <App />
       </UserProvider>
     </BrowserRouter>
-    </React.StrictMode>
+    // </React.StrictMode>
 )

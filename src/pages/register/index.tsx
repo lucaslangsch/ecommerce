@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import { Button, Card, TextField, Typography } from '@mui/material';
 import styles from './index.module.css';
@@ -12,6 +12,7 @@ function Register() {
     password: ''
   });
   const { register } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -24,11 +25,12 @@ function Register() {
     e.preventDefault();
     try {
       await register({
-        firstName: formData.firstName,
+        name: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password
       });
+      navigate("/dashboard");
     } catch (error) {
       console.error(error);
     }

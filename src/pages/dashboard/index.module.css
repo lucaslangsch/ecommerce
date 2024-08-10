@@ -12,30 +12,6 @@
   width: 80%;
 }
 
-.card {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  position: relative;
-  min-height: 400px;
-  justify-content: center;
-}
-
-.cardImg {
-  height: auto;
-  width: 50%;
-  object-fit: cover;
-}
-
-.form {
-  padding: 20px 40px;
-  display: flex;
-  width: 50%;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
-}
-
 /* Mobile */
 @media (max-width: 700px) {
 }

@@ -1,5 +1,5 @@
 export async function registerUser(userData: {
-  firstName: string;
+  name: string;
   lastName: string;
   email: string;
   password: string;

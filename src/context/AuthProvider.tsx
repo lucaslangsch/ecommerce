@@ -26,7 +26,7 @@ function getCookie(name: string): string | null {
 function UserProvider({ children }: UserProviderType) {
   const [auth, setAuth] = useState({ name: '', email: '', authenticated: false });
   const [loading, setLoading] = useState(true);
-
+  
   useEffect(() => {
     const token = getCookie('token');
     console.log(token)
@@ -39,7 +39,7 @@ function UserProvider({ children }: UserProviderType) {
             email: decoded.email,
             authenticated: true,
           });
-
+          
         }
       } catch (e) {
         console.error('Invalid token');
@@ -47,8 +47,8 @@ function UserProvider({ children }: UserProviderType) {
     }
     setLoading(false);
   }, []);
-
-  const register = async (userData: { firstName: string; lastName: string; email: string; password: string }) => {
+  
+  const register = async (userData: { name: string; lastName: string; email: string; password: string }) => {
     const data = await registerUser(userData);
     document.cookie = `token=${data.token};path=/;`;
     const decoded: jwtDecoded = jwtDecode(data.token);
@@ -58,7 +58,7 @@ function UserProvider({ children }: UserProviderType) {
       authenticated: true,
     });
   };
-
+  
   const login = async (userData: { email: string; password: string }) => {
     const data = await loginUser(userData);
     document.cookie = `token=${data.token};path=/;`;
