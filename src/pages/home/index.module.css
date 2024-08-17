@@ -5,6 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   background-color: #a32424;
+  width: 100vw;
 }
 
 .containerMain {
@@ -22,10 +23,9 @@
   justify-content: center;
 }
 
-.cardImg {
+.img {
   height: auto;
   width: 50%;
-  object-fit: cover;
 }
 
 .form {
