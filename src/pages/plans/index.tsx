@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { getPlans } from '../../api/PlansApi';
-import { Card, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import { Card, CardActionArea, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import styles from './index.module.css';
+import { red } from '@mui/material/colors';
 
 interface Plan {
   id: string;
@@ -98,7 +99,7 @@ function Plans() {
   };
 
   const getModalityColor = (modality: string): string => {
-    return modality === 'online' ? 'grey.200' : 'grey.400';
+    return modality === 'online' ? red[50] : red[100];
   };
 
   const getFrequencyColor = (frequency: string): string => {
@@ -119,7 +120,7 @@ function Plans() {
   return (
     <>
       <Grid container spacing={3}>
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={10} sm={3}>
           <FormControl fullWidth>
             <InputLabel>Modalidade</InputLabel>
             <Select
@@ -134,13 +135,13 @@ function Plans() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={1}>
+        <Grid item xs={1} sm={1}>
           <IconButton onClick={clearModality} size="large">
             <HighlightOffIcon />
           </IconButton>
         </Grid>
 
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={10} sm={3}>
           <FormControl fullWidth>
             <InputLabel>Frequência</InputLabel>
             <Select
@@ -155,13 +156,13 @@ function Plans() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={1}>
+        <Grid item xs={1} sm={1}>
           <IconButton onClick={clearFrequency} size='large'>
             <HighlightOffIcon />
           </IconButton>
         </Grid>
 
-        <Grid item xs={12} sm={3}>
+        <Grid item xs={10} sm={3}>
           <FormControl fullWidth>
             <InputLabel>Esportes</InputLabel>
             <Select
@@ -176,7 +177,7 @@ function Plans() {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={12} sm={1}>
+        <Grid item xs={1} sm={1}>
           <IconButton onClick={clearType} size='large'>
             <HighlightOffIcon />
           </IconButton>
@@ -186,12 +187,14 @@ function Plans() {
       <Grid container spacing={3} style={{ marginTop: 20 }}>
         {filteredPlans.map(plan => (
           <Grid item xs={12} sm={6} lg={4} xl={2} key={plan.id}>
-            <Card sx={{ padding: 2, borderRadius: 2, backgroundColor: getModalityColor(plan.modality) }}>
-              <Typography variant="h6" sx={{ fontWeight: '700' }}>{plan.modality}</Typography>
-              <Typography variant="h6" sx={{ fontWeight: '700', fontSize: '3em' }}>{getTypeText(plan.type)}</Typography>
-              <Typography sx={{ textAlign: 'center', textWrap: 'balance' }}>Escolha entre corrida, ciclismo ou natação</Typography>
-              <Typography variant="h6" sx={{ fontWeight: '700', width: 'fit-content', background: getFrequencyColor(plan.frequency), padding: '0.125em 1em', borderRadius: 3, margin: '1em auto' }}>{plan.frequency}</Typography>
-              <Typography sx={{ textAlign: 'center' }}>R$ <span className={styles.price}>{plan.value}</span>,00</Typography>
+            <Card >
+              <CardActionArea sx={{ padding: 2, borderRadius: 2, background: getModalityColor(plan.modality) }}>
+                <Typography variant="h6" sx={{ fontWeight: '700' }}>{plan.modality}</Typography>
+                <Typography variant="h6" sx={{ fontWeight: '700', fontSize: '3.5em' }}>{getTypeText(plan.type)}</Typography>
+                <Typography sx={{ textAlign: 'center', textWrap: 'balance' }}>Escolha entre corrida, ciclismo ou natação</Typography>
+                <Typography variant="h6" sx={{ fontWeight: '700', width: 'fit-content', background: getFrequencyColor(plan.frequency), padding: '0.125em 1em', borderRadius: 3, margin: '1em auto' }}>{plan.frequency}</Typography>
+                <Typography sx={{ textAlign: 'center' }}>R$ <span className={styles.price}>{plan.value}</span>,00</Typography>
+              </CardActionArea>
             </Card>
           </Grid>
         ))}
