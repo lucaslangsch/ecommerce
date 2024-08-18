@@ -1,70 +1,47 @@
 import { useEffect, useState } from 'react';
-import Navbar from '../../components/navbar';
-import styles from './index.module.css';
-import { Card, CardContent, Grid, Typography } from '@mui/material';
-
-async function getPlans() {
-  const response = await fetch('http://localhost:3001/plans/showPrePlans', {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch plans');
-  }
-
-  return response.json();
-}
+import { getUser } from '../../api/UserApi';
+import { Box, Card, Divider, Grid, Typography } from '@mui/material';
 
 function Dashboard() {
-  const [plans, setPlans] = useState<any[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [role, setRole] = useState<string>('')
 
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const data = await getPlans();
-        setPlans(data.results); // Ajuste de acordo com a estrutura de dados retornada
-      } catch (err) {
-        setError(err.message);
+        const data = await getUser();
+        if (data) {
+          setRole(data.role)
+        }
+      } catch (err: unknown) {
+        console.log(err)
       }
-    };
-
-    fetchPlans();
+    }
+    fetchPlans()
   }, []);
 
   return (
     <>
-      <Navbar />
-      <main className={styles.main}>
-        <div className={styles.containerMain}>
-          {error && <div>Error: {error}</div>}
-          {!error && plans.length === 0 && <div>Loading...</div>}
-          {!error && plans.length > 0 && (
-            <Grid container spacing={2}>
-              {plans.map(plan => (
-                <Grid item key={plan.id} xs={12} sm={6} md={4}>
-                  <Card>
-                    <CardContent>
-                      <Typography variant="h6" component="div">
-                        {plan.reason}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Frequency: {plan.auto_recurring.frequency} {plan.auto_recurring.frequency_type}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Amount: {plan.auto_recurring.transaction_amount} {plan.auto_recurring.currency_id}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </div>
-      </main>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
+          <Card sx={{ padding: 2, borderRadius: 2 }}>
+            <Typography variant='h4'>Bem vindo</Typography>
+            <Divider />
+            <Box sx={{ pt: 2 }}>
+              <Typography>Perfil: {role}</Typography>
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <Card sx={{ padding: 2, borderRadius: 2 }}>
+            <Typography variant='h4'>Bem vindo</Typography>
+            <Divider />
+            <Box sx={{ pt: 2 }}>
+              <Typography>Perfil: {role}</Typography>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
     </>
   );
 }
