@@ -1,18 +1,11 @@
-.main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+.price {
+  font-size: 2em;
+  font-weight: 700;
 }
 
-.form {
-  padding: 20px 40px;
+.containerMain {
   display: flex;
-  width: 50%;
-  flex-direction: column;
-  justify-content: center;
-  gap: 20px;
+  padding: 20px;
 }
 
 /* Mobile */

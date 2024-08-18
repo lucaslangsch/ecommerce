@@ -1,83 +1,201 @@
-import React, { useEffect, useRef, useState } from 'react';
-import Navbar from '../../components/navbar';
+import { useEffect, useState } from 'react';
+import { getPlans } from '../../api/PlansApi';
+import { Card, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, Typography } from '@mui/material';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import styles from './index.module.css';
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
-
-const PUBLIC_KEY = "APP_USR-7790b7ef-c642-4e4b-aeaa-53ae59481867";
-initMercadoPago(PUBLIC_KEY);
+interface Plan {
+  id: string;
+  modality: string;
+  frequency: string;
+  type: string;
+  value: number;
+}
 
 function Plans() {
-  useEffect(() => {
-  }, []);
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [filteredPlans, setFilteredPlans] = useState<Plan[]>(plans);
 
-  const initialization = {
-    amount: 100,
-    preferenceId: "<PREFERENCE_ID>",
-  };
-  const customization = {
-    paymentMethods: {
-      ticket: "all",
-      bankTransfer: "all",
-      creditCard: "all",
-      debitCard: "all",
-    },
-  };
-  const onSubmit = async (
-    { selectedPaymentMethod, formData }
-  ) => {
-    console.log(selectedPaymentMethod)
-    if (selectedPaymentMethod === "bank_transfer") {
-      formData = {
-        ...formData,
-        transaction_amount: 1,
+  const [selectedModality, setSelectedModality] = useState<string>('');
+  const [selectedFrequency, setSelectedFrequency] = useState<string>('');
+  const [selectedType, setSelectedType] = useState<string>('');
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const data = await getPlans();
+        setPlans(data);
+      } catch (err: unknown) {
+        console.log(err)
       }
     }
-    // callback chamado ao clicar no botão de submissão dos dados
-    return new Promise((resolve, reject) => {
-      fetch("/process_payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({...formData, details: 'sd'}),
-      })
-        .then((response) => response.json())
-        .then((response) => {
-          // receber o resultado do pagamento
-          resolve();
-        })
-        .catch((error) => {
-          // lidar com a resposta de erro ao tentar criar o pagamento
-          reject();
-        });
-    });
-  };
-  const onError = async (error) => {
-    // callback chamado para todos os casos de erro do Brick
-    console.log(error);
-  };
-  const onReady = async () => {
-    /*
-      Callback chamado quando o Brick estiver pronto.
-      Aqui você pode ocultar loadings do seu site, por exemplo.
-    */
-  };
+    fetchPlans()
+  }, []);
+
+  useEffect(() => {
+    let filtered = plans;
+
+    if (selectedModality) {
+      filtered = filtered.filter(plan => plan.modality === selectedModality);
+    }
+
+    if (selectedFrequency) {
+      filtered = filtered.filter(plan => plan.frequency === selectedFrequency);
+    }
+
+    if (selectedType) {
+      filtered = filtered.filter(plan => plan.type === selectedType);
+    }
+
+    setFilteredPlans(filtered);
+  }, [selectedModality, selectedFrequency, selectedType, plans]);
+
+  const uniqueModalities = plans.reduce<string[]>((acc, plan) => {
+    if (!acc.includes(plan.modality)) {
+      acc.push(plan.modality);
+    }
+    return acc;
+  }, []);
 
 
+  const uniqueFrequencies = plans.reduce<string[]>((acc, plan) => {
+    if (!acc.includes(plan.frequency)) {
+      acc.push(plan.frequency);
+    }
+    return acc;
+  }, []);
+
+  const uniqueTypes = plans.reduce<string[]>((acc, plan) => {
+    if (!acc.includes(plan.type)) {
+      acc.push(plan.type);
+    }
+    return acc;
+  }, []);
+
+  const clearModality = () => {
+    setSelectedModality('');
+  };
+
+  const clearFrequency = () => {
+    setSelectedFrequency('');
+  };
+
+  const clearType = () => {
+    setSelectedType('');
+  };
+
+  const getTypeText = (type: string): string => {
+    switch (type) {
+      case 'one':
+        return '1MOD.';
+      case 'two':
+        return '2MOD.';
+      case 'three':
+        return '3MOD.';
+      default:
+        return '';
+    }
+  };
+
+  const getModalityColor = (modality: string): string => {
+    return modality === 'online' ? 'grey.200' : 'grey.400';
+  };
+
+  const getFrequencyColor = (frequency: string): string => {
+    switch (frequency) {
+      case 'mensal':
+        return '#FFED00';
+      case 'trimestral':
+        return '#FFBD59';
+      case 'semestral':
+        return '#FF7431';
+      case 'anual':
+        return '#FF3131';
+      default:
+        return '#FF3131';
+    }
+  };
 
   return (
     <>
-      <Navbar />
-      <main className={styles.main}>
-        <Payment
-          initialization={initialization}
-          customization={customization}
-          onSubmit={onSubmit}
-          onReady={onReady}
-          onError={onError}
-        />
-      </main>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <InputLabel>Modalidade</InputLabel>
+            <Select
+              value={selectedModality}
+              onChange={(e) => setSelectedModality(e.target.value)}
+            >
+              {uniqueModalities.map((modality) => (
+                <MenuItem key={modality} value={modality}>
+                  {modality}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={1}>
+          <IconButton onClick={clearModality} size="large">
+            <HighlightOffIcon />
+          </IconButton>
+        </Grid>
+
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <InputLabel>Frequência</InputLabel>
+            <Select
+              value={selectedFrequency}
+              onChange={(e) => setSelectedFrequency(e.target.value)}
+            >
+              {uniqueFrequencies.map((frequency) => (
+                <MenuItem key={frequency} value={frequency}>
+                  {frequency}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={1}>
+          <IconButton onClick={clearFrequency} size='large'>
+            <HighlightOffIcon />
+          </IconButton>
+        </Grid>
+
+        <Grid item xs={12} sm={3}>
+          <FormControl fullWidth>
+            <InputLabel>Esportes</InputLabel>
+            <Select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+            >
+              {uniqueTypes.map((type) => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={1}>
+          <IconButton onClick={clearType} size='large'>
+            <HighlightOffIcon />
+          </IconButton>
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3} style={{ marginTop: 20 }}>
+        {filteredPlans.map(plan => (
+          <Grid item xs={12} sm={6} lg={4} xl={2} key={plan.id}>
+            <Card sx={{ padding: 2, borderRadius: 2, backgroundColor: getModalityColor(plan.modality) }}>
+              <Typography variant="h6" sx={{ fontWeight: '700' }}>{plan.modality}</Typography>
+              <Typography variant="h6" sx={{ fontWeight: '700', fontSize: '3em' }}>{getTypeText(plan.type)}</Typography>
+              <Typography sx={{ textAlign: 'center', textWrap: 'balance' }}>Escolha entre corrida, ciclismo ou natação</Typography>
+              <Typography variant="h6" sx={{ fontWeight: '700', width: 'fit-content', background: getFrequencyColor(plan.frequency), padding: '0.125em 1em', borderRadius: 3, margin: '1em auto' }}>{plan.frequency}</Typography>
+              <Typography sx={{ textAlign: 'center' }}>R$ <span className={styles.price}>{plan.value}</span>,00</Typography>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </>
   );
 }
