@@ -4,6 +4,7 @@ import { Card, CardActionArea, FormControl, Grid, IconButton, InputLabel, MenuIt
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import styles from './index.module.css';
 import { red } from '@mui/material/colors';
+import { Link } from 'react-router-dom';
 
 interface Plan {
   id: string;
@@ -189,11 +190,13 @@ function Plans() {
           <Grid item xs={12} sm={6} lg={4} xl={2} key={plan.id}>
             <Card >
               <CardActionArea sx={{ padding: 2, borderRadius: 2, background: getModalityColor(plan.modality) }}>
+              <Link to={`/dashboard/plans/${plan.id}`}>
                 <Typography variant="h6" sx={{ fontWeight: '700' }}>{plan.modality}</Typography>
                 <Typography variant="h6" sx={{ fontWeight: '700', fontSize: '3.5em' }}>{getTypeText(plan.type)}</Typography>
                 <Typography sx={{ textAlign: 'center', textWrap: 'balance' }}>Escolha entre corrida, ciclismo ou natação</Typography>
                 <Typography variant="h6" sx={{ fontWeight: '700', width: 'fit-content', background: getFrequencyColor(plan.frequency), padding: '0.125em 1em', borderRadius: 3, margin: '1em auto' }}>{plan.frequency}</Typography>
                 <Typography sx={{ textAlign: 'center' }}>R$ <span className={styles.price}>{plan.value}</span>,00</Typography>
+              </Link>
               </CardActionArea>
             </Card>
           </Grid>
