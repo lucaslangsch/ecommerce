@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 import { Box, Card, Divider, Grid, Typography } from '@mui/material';
+import { getPlanById, processPayment } from '../../api/PlansApi';
 
 const PUBLIC_KEY = "APP_USR-7790b7ef-c642-4e4b-aeaa-53ae59481867";
 initMercadoPago(PUBLIC_KEY, { locale: 'pt-BR' });
@@ -80,8 +81,9 @@ type TicketData = {
 type PaymentMethod = 'atm' | 'ticket' | 'bank_transfer' | 'creditCard' | 'debitCard' | 'wallet_purchase' | 'onboarding_credits';
 
 type PaymentFormData = {
-  selectedPaymentMethod: PaymentMethod;
-  formData: CardData | TicketData | BankTransferData;
+  selectedPaymentMethod: PaymentMethod,
+  formData: CardData | TicketData | BankTransferData,
+  planId?: string,
 };
 
 function Plan() {
@@ -91,8 +93,7 @@ function Plan() {
   useEffect(() => {
     const fetchPlanData = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/plans/show/${id}`);
-        const data = await response.json();
+        const data = await getPlanById(id!);
         setPlanData(data);
       } catch (error) {
         console.error('Failed to fetch plan data', error);
@@ -132,17 +133,17 @@ function Plan() {
   };
 
   const onSubmit = async ({ selectedPaymentMethod, formData }: PaymentFormData) => {
-    return new Promise((reject) => {
-      fetch("/process_payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ...formData, planId: planData.id, selectedPaymentMethod }),
-      })
-        .then((response) => response.json())
-        .catch((error) => reject(error));
-    });
+    try {
+      const paymentData: PaymentFormData = {
+        selectedPaymentMethod,
+        formData,
+        planId: planData.id
+      };
+      const result = await processPayment(paymentData);
+      console.log('Payment result:', result);
+    } catch (error) {
+      console.error('Failed to process payment', error);
+    }
   };
 
   const onError = async (error: unknown) => {
