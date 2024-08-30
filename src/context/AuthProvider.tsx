@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
 import UserContext from './AuthContext.tsx';
 import { loginUser, registerUser } from '../api/UserApi.ts';
+import getCookie from '../hooks/useCookie';
+import { UserLoginType, UserRegisterType } from '../types/types.ts';
 
 type UserProviderType = {
   children: React.ReactNode;
@@ -13,15 +15,7 @@ type jwtDecoded = {
   iat: number;
   exp: number;
   name: string;
-}
-
-function getCookie(name: string): string | null {
-  const matches = document.cookie.match(new RegExp(
-    `(?:^|; )${name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1')}=([^;]*)` // eslint-disable-line
-  ));
-  return matches ? decodeURIComponent(matches[1]) : null;
-}
-
+};
 
 function UserProvider({ children }: UserProviderType) {
   const [auth, setAuth] = useState({ name: '', email: '', authenticated: false });
@@ -29,7 +23,6 @@ function UserProvider({ children }: UserProviderType) {
   
   useEffect(() => {
     const token = getCookie('token');
-    console.log(token)
     if (token) {
       try {
         const decoded: jwtDecoded = jwtDecode(token);
@@ -39,7 +32,12 @@ function UserProvider({ children }: UserProviderType) {
             email: decoded.email,
             authenticated: true,
           });
-          
+        } else {
+          setAuth({
+            name: '',
+            email: '',
+            authenticated: false,
+          });
         }
       } catch (e) {
         console.error('Invalid token');
@@ -48,7 +46,7 @@ function UserProvider({ children }: UserProviderType) {
     setLoading(false);
   }, []);
   
-  const register = async (userData: { name: string; lastName: string; email: string; password: string }) => {
+  const register = async (userData: UserRegisterType) => {
     const data = await registerUser(userData);
     document.cookie = `token=${data.token};path=/;`;
     const decoded: jwtDecoded = jwtDecode(data.token);
@@ -59,7 +57,7 @@ function UserProvider({ children }: UserProviderType) {
     });
   };
   
-  const login = async (userData: { email: string; password: string }) => {
+  const login = async (userData: UserLoginType) => {
     const data = await loginUser(userData);
     document.cookie = `token=${data.token};path=/;`;
     const decoded: jwtDecoded = jwtDecode(data.token);

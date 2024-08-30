@@ -1,12 +1,13 @@
 import { createContext } from 'react';
+import { UserLoginType, UserRegisterType } from '../types/types';
 
 type UserContextType = {
   name: string;
   email: string;
   authenticated: boolean;
   loading: boolean;
-  login: (userData: { email: string; password: string }) => Promise<void>;
-  register: (userData: { name: string; lastName: string; email: string; password: string }) => Promise<void>;
+  login: (userData: UserLoginType) => Promise<void>;
+  register: (userData: UserRegisterType) => Promise<void>;
 };
 
 const UserContext = createContext({} as UserContextType);
