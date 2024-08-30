@@ -19,7 +19,7 @@ function Home() {
           email: emailRef?.current?.value,
           password: passwordRef?.current?.value
         });
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } catch (error) {
         console.error(error);
       }

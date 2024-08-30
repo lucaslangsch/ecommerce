@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import AuthContext from '../../context/AuthContext';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 import { Box, Card, Divider, Grid, Typography } from '@mui/material';
 import { getPlanById, processPayment } from '../../api/PlansApi';
+import { PlanType, PaymentFormData } from '../../types/types';
 
 const PUBLIC_KEY = "APP_USR-7790b7ef-c642-4e4b-aeaa-53ae59481867";
 initMercadoPago(PUBLIC_KEY, { locale: 'pt-BR' });
@@ -15,80 +17,11 @@ declare global {
   }
 }
 
-type Plan = {
-  id: string;
-  modality: string;
-  frequency: string;
-  type: string;
-  value: number;
-}
-
-type CardData = {
-  'token': string,
-  'issuer_id': string,
-  'payment_method_id': string,
-  'transaction_amount': number,
-  'payment_method_option_id': string | null,
-  'processing_mode': string | null,
-  'installments': number,
-  'payer': {
-    'email': string,
-    'identification': {
-      'type': string,
-      'number': string
-    }
-  }
-}
-
-type BankTransferData = {
-  'payment_method_id': string,
-  'transaction_amount': number,
-  'payer': {
-    'email': string
-  }
-}
-
-type TicketData = {
-  'payment_method_id': string,
-  'transaction_amount': number,
-  'transaction_details'?: {
-    'financial_institution': string,
-  },
-  'payer': {
-    'email': string,
-    'identification'?: {
-      'type': string,
-      'number': string
-    },
-    'first_name'?: string,
-    'last_name'?: string,
-    'address'?: {
-      'city': string,
-      'federal_unit': string,
-      'neighborhood': string,
-      'street_name': string,
-      'street_number': string,
-      'zip_code': string
-    }
-  },
-  'metadata'?: {
-    'payment_point'?: string,
-    'payment_mode'?: string
-  }
-}
-
-
-type PaymentMethod = 'atm' | 'ticket' | 'bank_transfer' | 'creditCard' | 'debitCard' | 'wallet_purchase' | 'onboarding_credits';
-
-type PaymentFormData = {
-  selectedPaymentMethod: PaymentMethod,
-  formData: CardData | TicketData | BankTransferData,
-  planId?: string,
-};
-
 function Plan() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [planData, setPlanData] = useState<Plan | null>(null);
+  const [planData, setPlanData] = useState<PlanType>();
+  const { email } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchPlanData = async () => {
@@ -116,12 +49,11 @@ function Plan() {
   const initialization = {
     amount: planData.value,
     payer: {
-      email: 'lucas@mail.com',
-    },
-    paymentId: '84692811719'
+      email: email,
+    }
   };
 
-  const { modality, frequency, type, value } = planData;
+  const { modality, frequency, metodology, value } = planData;
 
   const paymentMethods =
     frequency === "semestral" || frequency === "anual"
@@ -134,13 +66,15 @@ function Plan() {
 
   const onSubmit = async ({ selectedPaymentMethod, formData }: PaymentFormData) => {
     try {
-      const paymentData: PaymentFormData = {
+      const paymentData = {
         selectedPaymentMethod,
         formData,
-        planId: planData.id
+        mercadoPagoPlanId: planData.mercado_pago_id,
+        planId: id
       };
       const result = await processPayment(paymentData);
       console.log('Payment result:', result);
+      navigate("/dashboard");
     } catch (error) {
       console.error('Failed to process payment', error);
     }
@@ -163,16 +97,16 @@ function Plan() {
             <Divider />
             <Box sx={{ pt: 2 }}>
               <Typography>
-                Metodologia: {modality}
+                Metodologia: {metodology}
               </Typography>
               <Typography>
                 Frequência: {frequency}
               </Typography>
               <Typography>
-                Modalidade: {type}
+                Modalidade: {modality}
               </Typography>
               <Typography>
-                Valor: {value}
+                Valor: R$ {value},00
               </Typography>
             </Box>
           </Card>
