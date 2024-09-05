@@ -8,6 +8,7 @@ type UserContextType = {
   loading: boolean;
   login: (userData: UserLoginType) => Promise<void>;
   register: (userData: UserRegisterType) => Promise<void>;
+  logout: () => void;
 };
 
 const UserContext = createContext({} as UserContextType);

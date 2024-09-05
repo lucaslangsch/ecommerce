@@ -68,8 +68,16 @@ function UserProvider({ children }: UserProviderType) {
     });
   };
 
+  const logout = () => {
+    setAuth({
+      name: '',
+      email: '',
+      authenticated: false,
+    });
+  }
+
   return (
-    <UserContext.Provider value={{ ...auth, loading, register, login }}>
+    <UserContext.Provider value={{ ...auth, loading, register, login, logout }}>
       {children}
     </UserContext.Provider>
   );

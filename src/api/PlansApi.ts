@@ -1,58 +1,67 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
 import getCookie from '../hooks/useCookie';
-import { PaymentFormData } from '../types/types';
+import { PaymentFormData, PlanType } from '../types/types';
 
-export async function getPlans() {
+const URL = import.meta.env.VITE_URL_FETCH
+
+export const fetchData = async (endpoint: string) => {
   const token = getCookie('token');
-
-  const response = await fetch('http://localhost:3001/plans/show', {
+  const response = await fetch(`${URL}${endpoint}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
-    },
-  });
-
+    }
+  })
   if (!response.ok) {
-    throw new Error('Failed to fetch plans');
+    const dataError = await response.json();
+    throw new Error(dataError.message);
   }
-
-  return response.json();
+  return response.json()
 }
 
-export async function getPlanById(id: string) {
-  const token = getCookie('token');
-
-  const response = await fetch(`http://localhost:3001/plans/show/${id}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch plan data');
-  }
-
-  return response.json();
+export function useFetchPlans() {
+  const query = useQuery({
+    queryFn: () => fetchData('/plans/show'),
+    queryKey: ['plans-data'],
+    staleTime: 1 * 60 * 1000,
+    retry: 1,
+  })
+  return query;
 }
 
+export function useFetchPlanById(id: string) {
+  const query = useQuery<PlanType, Error>({
+    queryFn: () => fetchData(`/plans/show/${id}`),
+    queryKey: ['plan-data', id],
+    staleTime: 1 * 60 * 1000,
+    retry: 1,
+  })
+  return query;
+}
 
-export async function processPayment(paymentData: PaymentFormData) {
+export const fetchPostData = async (endpoint: string, body: object) => {
   const token = getCookie('token');
-
-  const response = await fetch('http://localhost:3001/payment/process_payment', {
+  const response = await fetch(`${URL}${endpoint}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify(paymentData),
-  });
-
+    body: JSON.stringify(body),
+  })
   if (!response.ok) {
-    throw new Error('Failed to process payment');
+    const dataError = await response.json();
+    throw new Error(dataError.message);
   }
+  return response.json()
+}
 
-  return response.json();
+export function useFetchProcessPayment(paymentData: PaymentFormData) {
+  const mutation = useMutation({
+    mutationFn: () => fetchPostData('/payment/process_payment', paymentData),
+    mutationKey: ['process-payment'],
+    retry: 1,
+  })
+  return mutation;
 }
